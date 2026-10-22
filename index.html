@@ -3,171 +3,168 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Bean & Bloom Cafe</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="styles.css" />
+    <title>Bean & Bloom</title>
+    <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <div class="app-shell">
       <header class="topbar">
         <div class="brand-wrap">
-          <div class="brand-mark">B</div>
+          <div class="brand-mark">☕</div>
           <div>
-            <p class="eyebrow">Specialty Cafe</p>
+            <p class="brand-kicker">Cafe Management</p>
             <h1>Bean & Bloom</h1>
           </div>
         </div>
 
-        <nav class="topnav" aria-label="페이지 이동">
-          <button class="nav-btn active" data-view="customer">고객 주문</button>
-          <button class="nav-btn" data-view="admin">관리자 대시보드</button>
+        <nav class="tab-group" aria-label="탭 메뉴">
+          <button class="tab-button active" data-tab="customer" type="button">고객 주문</button>
+          <button class="tab-button" data-tab="admin" type="button">관리자</button>
         </nav>
       </header>
 
       <main class="main-layout">
-        <section id="customerView" class="view-panel active">
-          <div class="content-panel menu-panel">
-            <div class="panel-header">
-              <div>
-                <p class="eyebrow">오늘의 메뉴</p>
-                <h2>카페 메뉴</h2>
-              </div>
-              <div class="search-box">
-                <span>🔎</span>
-                <input id="searchInput" type="text" placeholder="메뉴 검색" />
-              </div>
+        <section id="customer-view" class="view active">
+          <div class="catalog-panel card">
+            <div class="section-head">
+              <h2>메뉴</h2>
             </div>
 
-            <div id="categoryFilters" class="category-filters" aria-label="카테고리 필터"></div>
+            <div class="toolbar">
+              <label class="search-box" for="searchInput">
+                <span>🔎</span>
+                <input id="searchInput" type="search" placeholder="메뉴명을 입력하세요" />
+              </label>
+            </div>
+
+            <div id="categoryTabs" class="category-tabs" aria-label="카테고리 필터"></div>
             <div id="menuGrid" class="menu-grid" aria-live="polite"></div>
           </div>
 
-          <aside class="content-panel cart-panel">
-            <div class="panel-header compact">
-              <div>
-                <p class="eyebrow">주문 목록</p>
+          <div class="order-panel">
+            <div class="cart-card card">
+              <div class="section-head">
                 <h2>장바구니</h2>
+                <button id="clearCartBtn" class="ghost-button" type="button">전체 삭제</button>
               </div>
-              <button id="clearCartBtn" class="ghost-btn" type="button">전체 삭제</button>
-            </div>
 
-            <div id="cartList" class="cart-list"></div>
+              <div id="cartList" class="cart-list"></div>
 
-            <div class="cart-summary">
-              <div class="summary-row">
-                <span>상품 수</span>
-                <strong id="cartItemCount">0개</strong>
-              </div>
-              <div class="summary-row total">
-                <span>총 결제 금액</span>
-                <strong id="cartTotal">0원</strong>
-              </div>
-            </div>
-
-            <form id="orderForm" class="order-form">
-              <h3>주문 정보</h3>
-
-              <label>
-                이름
-                <input type="text" id="customerName" placeholder="홍길동" required />
-              </label>
-
-              <label>
-                연락처
-                <input type="tel" id="customerPhone" placeholder="010-1234-5678" required />
-              </label>
-
-              <label>
-                결제 수단
-                <select id="paymentMethod">
-                  <option value="card">카드 결제</option>
-                  <option value="cash">현금 결제</option>
-                  <option value="easy">간편 결제</option>
-                </select>
-              </label>
-
-              <label>
-                요청 사항
-                <textarea id="requestNote" rows="3" placeholder="얼음 많이 주세요, 시럽 추가 등"></textarea>
-              </label>
-
-              <button type="submit" class="primary-btn large">주문하기</button>
-            </form>
-          </aside>
-        </section>
-
-        <section id="adminView" class="view-panel">
-          <div class="admin-layout">
-            <div class="admin-section">
-              <div class="panel-header">
+              <div class="summary-box">
                 <div>
-                  <p class="eyebrow">운영 현황</p>
-                  <h2>관리자 대시보드</h2>
+                  <span>상품 수</span>
+                  <strong id="cartCount">0개</strong>
+                </div>
+                <div>
+                  <span>총 금액</span>
+                  <strong id="cartTotal">0원</strong>
                 </div>
               </div>
-
-              <div id="statsCards" class="stats-grid"></div>
             </div>
 
-            <div class="admin-section">
-              <div class="panel-header compact">
-                <div>
-                  <p class="eyebrow">메뉴 관리</p>
-                  <h2>커스텀 메뉴 추가</h2>
-                </div>
+            <div class="card order-form-card">
+              <div class="section-head">
+                <h2>주문 정보</h2>
               </div>
 
-              <form id="menuForm" class="menu-form">
-                <label>
-                  메뉴명
-                  <input type="text" id="newMenuName" placeholder="예: 바닐라 라떼" required />
-                </label>
+              <form id="orderForm">
+                <div class="field-row">
+                  <label>
+                    이름
+                    <input type="text" id="customerName" name="customerName" required />
+                  </label>
+                  <label>
+                    연락처
+                    <input type="tel" id="customerPhone" name="customerPhone" placeholder="010-0000-0000" required />
+                  </label>
+                </div>
 
                 <label>
-                  카테고리
-                  <select id="newMenuCategory">
-                    <option value="coffee">커피</option>
-                    <option value="noncoffee">논커피</option>
-                    <option value="dessert">디저트</option>
-                    <option value="tea">티</option>
+                  결제 수단
+                  <select id="paymentMethod" name="paymentMethod">
+                    <option value="card">카드</option>
+                    <option value="cash">현금</option>
+                    <option value="simple">간편 결제</option>
                   </select>
                 </label>
 
                 <label>
-                  설명
-                  <textarea id="newMenuDescription" rows="3" placeholder="부드럽고 달콤한 맛" required></textarea>
+                  요청 사항
+                  <textarea id="requestNote" name="requestNote" rows="3" placeholder="예: 얼음 적게 부탁드려요."></textarea>
                 </label>
 
-                <label>
-                  가격
-                  <input type="number" id="newMenuPrice" min="1000" step="100" placeholder="4500" required />
-                </label>
-
-                <button type="submit" class="primary-btn">메뉴 추가</button>
+                <button class="primary-button" type="submit">주문 완료</button>
               </form>
             </div>
 
-            <div class="admin-section full-width">
-              <div class="panel-header compact">
-                <div>
-                  <p class="eyebrow">주문 관리</p>
-                  <h2>주문 현황</h2>
-                </div>
+            <div class="card history-card">
+              <div class="section-head">
+                <h2>주문 내역</h2>
               </div>
-
-              <div id="statusFilter" class="status-filter" aria-label="주문 상태 필터"></div>
-              <div id="adminOrders" class="admin-orders"></div>
+              <div id="customerOrderList" class="history-list"></div>
             </div>
+          </div>
+        </section>
+
+        <section id="admin-view" class="view">
+          <div class="stats-grid">
+            <div class="stat-card card accent-waiting">
+              <span>대기</span>
+              <strong id="statWaiting">0</strong>
+            </div>
+            <div class="stat-card card accent-preparing">
+              <span>제조 중</span>
+              <strong id="statPreparing">0</strong>
+            </div>
+            <div class="stat-card card accent-completed">
+              <span>완료</span>
+              <strong id="statCompleted">0</strong>
+            </div>
+            <div class="stat-card card accent-cancelled">
+              <span>취소</span>
+              <strong id="statCancelled">0</strong>
+            </div>
+          </div>
+
+          <div class="summary-row card">
+            <div>
+              <span>총 주문 수</span>
+              <strong id="totalOrderCount">0</strong>
+            </div>
+            <div>
+              <span>오늘 매출</span>
+              <strong id="totalSales">0원</strong>
+            </div>
+            <div>
+              <span>평균 주문 금액</span>
+              <strong id="avgOrderAmount">0원</strong>
+            </div>
+          </div>
+
+          <div class="card admin-list-card">
+            <div class="section-head">
+              <h2>주문 관리</h2>
+              <select id="adminFilter" aria-label="주문 상태 필터">
+                <option value="all">전체</option>
+                <option value="waiting">주문 접수</option>
+                <option value="preparing">준비 중</option>
+                <option value="completed">완료</option>
+                <option value="cancelled">취소</option>
+              </select>
+            </div>
+            <div id="adminOrderList" class="admin-order-list"></div>
           </div>
         </section>
       </main>
     </div>
 
-    <script src="script.js" defer></script>
+    <div id="menuModal" class="modal hidden" aria-hidden="true">
+      <div class="modal-content card">
+        <button id="closeModalBtn" class="close-modal" type="button" aria-label="닫기">×</button>
+        <div id="modalContent"></div>
+      </div>
+    </div>
+
+    <script src="./script.js"></script>
   </body>
 </html>

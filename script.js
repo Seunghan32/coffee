@@ -1,115 +1,186 @@
 const STORAGE_KEYS = {
-  menu: 'coffee-menu-items',
-  cart: 'coffee-cart-items',
-  orders: 'coffee-orders',
+  menu: 'coffee-menu',
+  cart: 'coffee-cart',
+  orders: 'coffee-orders'
 };
 
-const STATUS_LABELS = {
-  waiting: '주문 접수',
-  preparing: '준비 중',
-  completed: '완료',
-  cancelled: '취소',
+const optionMap = {
+  temperature: {
+    ice: 0,
+    hot: 0
+  },
+  size: {
+    regular: 0,
+    large: 1500
+  },
+  extras: {
+    shot: 500,
+    syrup: 300,
+    cream: 400,
+    vanilla: 350
+  }
 };
 
-const STATUS_COLORS = {
-  waiting: '#d08a31',
-  preparing: '#4d7fb4',
-  completed: '#2d8f6d',
-  cancelled: '#b74c4c',
-};
-
-const DEFAULT_MENU_ITEMS = [
+const defaultMenu = [
   {
-    id: 1,
+    id: 'espresso',
     name: '에스프레소',
     category: 'coffee',
-    description: '진한 바디감과 고소한 커피향이 살아있는 클래식 커피',
+    description: '진한 커피향이 살아있는 원두 에스프레소',
     price: 3500,
     emoji: '☕',
+    options: {
+      temperature: ['ice', 'hot'],
+      size: ['regular', 'large'],
+      extras: ['shot', 'syrup', 'cream']
+    }
+  },
+  {
+    id: 'latte',
+    name: '카페 라떼',
+    category: 'coffee',
+    description: '부드러운 우유 거품과 고소한 커피의 조화',
+    price: 4500,
+    emoji: '🥛',
+    options: {
+      temperature: ['ice', 'hot'],
+      size: ['regular', 'large'],
+      extras: ['shot', 'syrup', 'vanilla']
+    }
+  },
+  {
+    id: 'vanilla-latte',
+    name: '바닐라 라떼',
+    category: 'coffee',
+    description: '달콤한 바닐라 향이 더해진 부드러운 라떼',
+    price: 5200,
+    emoji: '🍦',
+    options: {
+      temperature: ['ice', 'hot'],
+      size: ['regular', 'large'],
+      extras: ['shot', 'cream', 'vanilla']
+    }
+  },
+  {
+    id: 'lemonade',
+    name: '레몬에이드',
+    category: 'beverage',
+    description: '시원한 레몬 향이 가득한 상큼한 에이드',
+    price: 4800,
+    emoji: '🍋',
+    options: {
+      temperature: ['ice'],
+      size: ['regular', 'large'],
+      extras: ['syrup', 'vanilla']
+    }
+  },
+  {
+    id: 'matcha',
+    name: '말차 라떼',
+    category: 'beverage',
+    description: '깊고 고소한 말차의 풍미가 느껴지는 라떼',
+    price: 5500,
+    emoji: '🍵',
+    options: {
+      temperature: ['ice', 'hot'],
+      size: ['regular', 'large'],
+      extras: ['cream', 'syrup']
+    }
+  },
+  {
+    id: 'cheesecake',
+    name: '치즈 케이크',
+    category: 'dessert',
+    description: '촉촉하고 부드러운 치즈 케이크',
+    price: 6200,
+    emoji: '🍰',
+    options: {
+      temperature: ['hot'],
+      size: ['regular'],
+      extras: ['cream', 'vanilla']
+    }
+  }
+];
+
+const initialOrders = [
+  {
+    id: 1,
+    orderNumber: 'ORD-20261022-0001',
+    customerName: '김민준',
+    phoneNumber: '010-1234-5678',
+    orderTime: '2026-10-22T09:02:00',
+    status: 'waiting',
+    totalPrice: 8500,
+    requestNote: '얼음 적게 부탁해요.',
+    paymentMethod: 'card',
+    items: [
+      { id: 'americano-order', menuId: 'espresso', name: '에스프레소', quantity: 1, unitPrice: 4500, selectedOptions: { temperature: 'ice', size: 'large', extras: ['shot'] } }
+    ]
   },
   {
     id: 2,
-    name: '카페라떼',
-    category: 'coffee',
-    description: '부드러운 우유 거품과 균형 잡힌 커피 맛',
-    price: 4500,
-    emoji: '🥛',
+    orderNumber: 'ORD-20261022-0002',
+    customerName: '이서연',
+    phoneNumber: '010-9876-5432',
+    orderTime: '2026-10-22T09:40:00',
+    status: 'preparing',
+    totalPrice: 10200,
+    requestNote: '종이컵으로 부탁드려요.',
+    paymentMethod: 'simple',
+    items: [
+      { id: 'latte-order', menuId: 'latte', name: '카페 라떼', quantity: 2, unitPrice: 5100, selectedOptions: { temperature: 'hot', size: 'regular', extras: ['syrup'] } }
+    ]
   },
   {
     id: 3,
-    name: '바닐라 라떼',
-    category: 'coffee',
-    description: '바닐라 향이 더해진 달콤한 스페셜티 라떼',
-    price: 5200,
-    emoji: '🍦',
-  },
-  {
-    id: 4,
-    name: '아메리카노',
-    category: 'coffee',
-    description: '깔끔하고 상쾌한 원두의 향을 살린 아메리카노',
-    price: 4000,
-    emoji: '☕',
-  },
-  {
-    id: 5,
-    name: '복숭아 아이스티',
-    category: 'tea',
-    description: '과일향이 가득한 달콤한 아이스티',
-    price: 4200,
-    emoji: '🍑',
-  },
-  {
-    id: 6,
-    name: '자몽 에이드',
-    category: 'noncoffee',
-    description: '새콤하고 상큼한 자몽 에이드',
-    price: 4800,
-    emoji: '🍊',
-  },
-  {
-    id: 7,
-    name: '치즈 케이크',
-    category: 'dessert',
-    description: '부드러운 크림치즈와 바삭한 크럼블이 어우러진 케이크',
-    price: 6000,
-    emoji: '🍰',
-  },
-  {
-    id: 8,
-    name: '크로와상',
-    category: 'dessert',
-    description: '겉은 바삭하고 속은 부드러운 프랑스식 크로와상',
-    price: 3500,
-    emoji: '🥐',
-  },
+    orderNumber: 'ORD-20261022-0003',
+    customerName: '박지훈',
+    phoneNumber: '010-5566-7788',
+    orderTime: '2026-10-22T10:12:00',
+    status: 'completed',
+    totalPrice: 12000,
+    requestNote: '',
+    paymentMethod: 'cash',
+    items: [
+      { id: 'matcha-order', menuId: 'matcha', name: '말차 라떼', quantity: 1, unitPrice: 7000, selectedOptions: { temperature: 'ice', size: 'large', extras: ['cream'] } },
+      { id: 'cake-order', menuId: 'cheesecake', name: '치즈 케이크', quantity: 1, unitPrice: 5000, selectedOptions: { temperature: 'hot', size: 'regular', extras: ['vanilla'] } }
+    ]
+  }
 ];
 
-const categoryMeta = {
-  all: '전체',
-  coffee: '커피',
-  noncoffee: '논커피',
-  dessert: '디저트',
-  tea: '티',
+const state = {
+  activeTab: 'customer',
+  category: 'all',
+  query: '',
+  cart: loadFromStorage(STORAGE_KEYS.cart, []),
+  orders: loadFromStorage(STORAGE_KEYS.orders, initialOrders),
+  adminFilter: 'all',
+  selectedMenu: null
 };
 
-const state = {
-  selectedCategory: 'all',
-  searchQuery: '',
-  cart: loadFromStorage(STORAGE_KEYS.cart, []),
-  orders: loadFromStorage(STORAGE_KEYS.orders, []),
-  menuItems: loadFromStorage(STORAGE_KEYS.menu, DEFAULT_MENU_ITEMS),
-  activeAdminFilter: 'all',
+const els = {
+  customerView: document.getElementById('customer-view'),
+  adminView: document.getElementById('admin-view'),
+  menuGrid: document.getElementById('menuGrid'),
+  cartList: document.getElementById('cartList'),
+  cartTotal: document.getElementById('cartTotal'),
+  cartCount: document.getElementById('cartCount'),
+  searchInput: document.getElementById('searchInput'),
+  categoryTabs: document.getElementById('categoryTabs'),
+  orderForm: document.getElementById('orderForm'),
+  customerOrderList: document.getElementById('customerOrderList'),
+  adminOrderList: document.getElementById('adminOrderList'),
+  adminFilter: document.getElementById('adminFilter'),
+  menuModal: document.getElementById('menuModal'),
+  modalContent: document.getElementById('modalContent'),
+  clearCartBtn: document.getElementById('clearCartBtn')
 };
 
 function loadFromStorage(key, fallback) {
   try {
-    const saved = localStorage.getItem(key);
-    if (!saved) return fallback;
-    const parsed = JSON.parse(saved);
-    return Array.isArray(parsed) ? parsed : fallback;
+    const value = JSON.parse(localStorage.getItem(key));
+    return value ?? fallback;
   } catch (error) {
-    console.warn(`${key} 로딩 중 오류 발생:`, error);
     return fallback;
   }
 }
@@ -122,454 +193,512 @@ function formatPrice(value) {
   return `${Number(value).toLocaleString()}원`;
 }
 
+function getCategories() {
+  const categories = [...new Set(defaultMenu.map(item => item.category))];
+  return ['all', ...categories];
+}
+
 function getFilteredMenu() {
-  return state.menuItems.filter((item) => {
-    const matchesCategory = state.selectedCategory === 'all' || item.category === state.selectedCategory;
-    const matchesSearch = item.name.toLowerCase().includes(state.searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
+  const selectedCategory = state.category;
+  const query = state.query.trim().toLowerCase();
+
+  return defaultMenu.filter(item => {
+    const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
+    const matchesQuery = !query || item.name.toLowerCase().includes(query) || item.description.toLowerCase().includes(query);
+    return matchesCategory && matchesQuery;
   });
 }
 
-function renderCategoryFilters() {
-  const container = document.getElementById('categoryFilters');
-  const categories = ['all', ...Object.keys(categoryMeta).filter((key) => key !== 'all')];
+function renderCategories() {
+  const categories = getCategories();
+  els.categoryTabs.innerHTML = categories
+    .map(category => {
+      const labelMap = {
+        all: '전체',
+        coffee: '커피',
+        beverage: '음료',
+        dessert: '디저트'
+      };
 
-  container.innerHTML = categories
-    .map(
-      (category) => `
-        <button
-          type="button"
-          class="filter-chip ${state.selectedCategory === category ? 'active' : ''}"
-          data-category="${category}"
-        >
-          ${categoryMeta[category]}
-        </button>
-      `,
-    )
+      const isActive = state.category === category;
+      return `<button class="category-button ${isActive ? 'active' : ''}" data-category="${category}" type="button">${labelMap[category] || category}</button>`;
+    })
     .join('');
-
-  container.querySelectorAll('[data-category]').forEach((button) => {
-    button.addEventListener('click', () => {
-      state.selectedCategory = button.dataset.category;
-      renderCategoryFilters();
-      renderMenu();
-    });
-  });
 }
 
 function renderMenu() {
-  const menuGrid = document.getElementById('menuGrid');
   const filteredMenu = getFilteredMenu();
 
   if (!filteredMenu.length) {
-    menuGrid.innerHTML = `<div class="empty-cart">검색 조건에 맞는 메뉴가 없습니다.</div>`;
+    els.menuGrid.innerHTML = '<div class="empty-state">검색 결과가 없습니다.</div>';
     return;
   }
 
-  menuGrid.innerHTML = filteredMenu
+  els.menuGrid.innerHTML = filteredMenu
     .map(
-      (item) => `
-        <article class="menu-card" data-id="${item.id}">
-          <div class="menu-thumb">${item.emoji || '☕'}</div>
-          <div class="menu-body">
-            <div class="menu-topline">
-              <div class="menu-name">${item.name}</div>
-              <span class="menu-tag">${categoryMeta[item.category]}</span>
-            </div>
-            <div class="menu-desc">${item.description}</div>
-            <div class="menu-meta">
-              <div class="menu-price">${formatPrice(item.price)}</div>
-              <button type="button" class="primary-btn add-to-cart-btn" data-id="${item.id}">담기</button>
-            </div>
+      item => `
+        <button class="menu-card" type="button" data-menu-id="${item.id}">
+          <div class="menu-emoji">${item.emoji}</div>
+          <h3>${item.name}</h3>
+          <p>${item.description}</p>
+          <div class="menu-meta">
+            <span class="price">${formatPrice(item.price)}</span>
+            <span class="select-button">선택</span>
           </div>
-        </article>
-      `,
+        </button>
+      `
+    )
+    .join('');
+}
+
+function getCartTotal() {
+  return state.cart.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
+}
+
+function renderCart() {
+  if (!state.cart.length) {
+    els.cartList.innerHTML = '<div class="empty-state">장바구니가 비어 있습니다.</div>';
+    els.cartTotal.textContent = '0원';
+    els.cartCount.textContent = '0개';
+    saveToStorage(STORAGE_KEYS.cart, state.cart);
+    return;
+  }
+
+  els.cartList.innerHTML = state.cart
+    .map(
+      item => `
+        <div class="cart-item">
+          <div class="cart-item-row">
+            <div>
+              <p class="cart-item-name">${item.name}</p>
+              <div class="cart-item-meta">${formatOptionSummary(item.selectedOptions)}</div>
+            </div>
+            <button class="remove-button" type="button" data-remove-id="${item.id}">삭제</button>
+          </div>
+
+          <div class="cart-item-row">
+            <div class="quantity-controls">
+              <button class="quantity-button" type="button" data-change-qty="-" data-id="${item.id}">-</button>
+              <span>${item.quantity}</span>
+              <button class="quantity-button" type="button" data-change-qty="+" data-id="${item.id}">+</button>
+            </div>
+            <span class="item-total">${formatPrice(item.unitPrice * item.quantity)}</span>
+          </div>
+        </div>
+      `
     )
     .join('');
 
-  menuGrid.querySelectorAll('.add-to-cart-btn').forEach((button) => {
-    button.addEventListener('click', () => addToCart(Number(button.dataset.id)));
-  });
+  els.cartCount.textContent = `${state.cart.reduce((sum, item) => sum + item.quantity, 0)}개`;
+  els.cartTotal.textContent = formatPrice(getCartTotal());
+  saveToStorage(STORAGE_KEYS.cart, state.cart);
 }
 
-function addToCart(menuId) {
-  const existingItem = state.cart.find((item) => item.menuId === menuId);
+function formatOptionSummary(options) {
+  if (!options) return '기본 옵션';
+
+  const extras = options.extras && options.extras.length ? ` / ${options.extras.join(', ')}` : '';
+  return `${options.temperature || 'ice'} / ${options.size || 'regular'}${extras}`;
+}
+
+function getOptionCost(selectedOptions) {
+  let total = 0;
+  const sizePrice = optionMap.size[selectedOptions.size] || 0;
+  const temperaturePrice = optionMap.temperature[selectedOptions.temperature] || 0;
+  const extras = selectedOptions.extras || [];
+
+  total += sizePrice + temperaturePrice + extras.reduce((sum, extra) => sum + (optionMap.extras[extra] || 0), 0);
+  return total;
+}
+
+function openMenuModal(menuId) {
+  const menu = defaultMenu.find(item => item.id === menuId);
+  if (!menu) return;
+
+  state.selectedMenu = menu;
+  const options = menu.options || {};
+  const defaultSelected = {
+    temperature: options.temperature?.[0] || 'ice',
+    size: options.size?.[0] || 'regular',
+    extras: []
+  };
+
+  const content = `
+    <div class="modal-emoji">${menu.emoji}</div>
+    <h2>${menu.name}</h2>
+    <p class="meta-muted">${menu.description}</p>
+    <p class="price">${formatPrice(menu.price)}</p>
+
+    <div class="option-group">
+      <h4>온도</h4>
+      <div class="option-list">
+        ${options.temperature
+          ?.map(
+            value => `
+              <label>
+                <input type="radio" name="temperature" value="${value}" ${value === defaultSelected.temperature ? 'checked' : ''} />
+                ${value === 'ice' ? '아이스' : '핫'}
+              </label>
+            `
+          )
+          .join('') || ''}
+      </div>
+    </div>
+
+    <div class="option-group">
+      <h4>사이즈</h4>
+      <div class="option-list">
+        ${options.size
+          ?.map(
+            value => `
+              <label>
+                <input type="radio" name="size" value="${value}" ${value === defaultSelected.size ? 'checked' : ''} />
+                ${value === 'regular' ? '레귤러' : '라지'}
+              </label>
+            `
+          )
+          .join('') || ''}
+      </div>
+    </div>
+
+    <div class="option-group">
+      <h4>추가 옵션</h4>
+      <div class="option-list">
+        ${(options.extras || [])
+          .map(
+            value => `
+              <label>
+                <input type="checkbox" name="extra" value="${value}" />
+                ${value === 'shot' ? '샷 추가' : value === 'syrup' ? '시럽 추가' : value === 'cream' ? '휘핑크림' : '바닐라 시럽'}
+              </label>
+            `
+          )
+          .join('')}
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button id="addToCartBtn" class="primary-button" type="button">장바구니 담기</button>
+    </div>
+  `;
+
+  els.modalContent.innerHTML = content;
+  els.menuModal.classList.remove('hidden');
+  els.menuModal.setAttribute('aria-hidden', 'false');
+}
+
+function closeMenuModal() {
+  els.menuModal.classList.add('hidden');
+  els.menuModal.setAttribute('aria-hidden', 'true');
+}
+
+function addToCartFromModal() {
+  if (!state.selectedMenu) return;
+
+  const temperature = document.querySelector('input[name="temperature"]:checked')?.value || 'ice';
+  const size = document.querySelector('input[name="size"]:checked')?.value || 'regular';
+  const extras = Array.from(document.querySelectorAll('input[name="extra"]:checked')).map(input => input.value);
+
+  const selectedOptions = { temperature, size, extras };
+  const unitPrice = state.selectedMenu.price + getOptionCost(selectedOptions);
+  const existingItem = state.cart.find(item => item.menuId === state.selectedMenu.id && JSON.stringify(item.selectedOptions) === JSON.stringify(selectedOptions));
 
   if (existingItem) {
     existingItem.quantity += 1;
   } else {
-    const menu = state.menuItems.find((item) => item.id === menuId);
-    if (!menu) return;
-
     state.cart.push({
-      id: `${menuId}-${Date.now()}`,
-      menuId: menu.id,
-      name: menu.name,
-      price: menu.price,
+      id: `${state.selectedMenu.id}-${Date.now()}`,
+      menuId: state.selectedMenu.id,
+      name: state.selectedMenu.name,
       quantity: 1,
-      category: menu.category,
+      selectedOptions,
+      unitPrice
     });
   }
 
-  saveToStorage(STORAGE_KEYS.cart, state.cart);
   renderCart();
+  closeMenuModal();
 }
 
-function updateCartQuantity(menuId, delta) {
-  const target = state.cart.find((item) => item.menuId === menuId);
-  if (!target) return;
+function adjustCartQuantity(itemId, delta) {
+  const item = state.cart.find(entry => entry.id === itemId);
+  if (!item) return;
 
-  target.quantity += delta;
-  if (target.quantity <= 0) {
-    state.cart = state.cart.filter((item) => item.menuId !== menuId);
+  item.quantity += delta;
+
+  if (item.quantity <= 0) {
+    state.cart = state.cart.filter(entry => entry.id !== itemId);
   }
 
-  saveToStorage(STORAGE_KEYS.cart, state.cart);
   renderCart();
 }
 
-function removeCartItem(menuId) {
-  state.cart = state.cart.filter((item) => item.menuId !== menuId);
-  saveToStorage(STORAGE_KEYS.cart, state.cart);
+function removeCartItem(itemId) {
+  state.cart = state.cart.filter(item => item.id !== itemId);
   renderCart();
 }
 
-function renderCart() {
-  const cartList = document.getElementById('cartList');
-  const cartTotal = document.getElementById('cartTotal');
-  const cartItemCount = document.getElementById('cartItemCount');
+function clearCart() {
+  state.cart = [];
+  renderCart();
+}
 
-  if (!state.cart.length) {
-    cartList.innerHTML = `
-      <div class="empty-cart">
-        아직 담긴 메뉴가 없어요.<br />원하는 메뉴를 선택해보세요.
-      </div>
-    `;
-    cartTotal.textContent = '0원';
-    cartItemCount.textContent = '0개';
-    return;
-  }
-
-  const totalPrice = state.cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const totalQty = state.cart.reduce((sum, item) => sum + item.quantity, 0);
-
-  cartTotal.textContent = formatPrice(totalPrice);
-  cartItemCount.textContent = `${totalQty}개`;
-
-  cartList.innerHTML = state.cart
-    .map(
-      (item) => `
-        <div class="cart-item">
-          <div class="meta">
-            <h4>${item.name}</h4>
-            <p>${formatPrice(item.price)} / 개</p>
-            <div class="cart-controls">
-              <div class="qty-buttons">
-                <button type="button" class="qty-btn" data-action="decrease" data-menu-id="${item.menuId}">−</button>
-                <span class="qty-value">${item.quantity}</span>
-                <button type="button" class="qty-btn" data-action="increase" data-menu-id="${item.menuId}">+</button>
-              </div>
-              <button type="button" class="ghost-btn" data-action="remove" data-menu-id="${item.menuId}">삭제</button>
-            </div>
-          </div>
-          <div class="item-price">${formatPrice(item.price * item.quantity)}</div>
-        </div>
-      `,
-    )
-    .join('');
-
-  cartList.querySelectorAll('.qty-btn').forEach((button) => {
-    button.addEventListener('click', () => {
-      const action = button.dataset.action;
-      const menuId = Number(button.dataset.menuId);
-      if (action === 'increase') {
-        updateCartQuantity(menuId, 1);
-      } else {
-        updateCartQuantity(menuId, -1);
-      }
-    });
-  });
-
-  cartList.querySelectorAll('[data-action="remove"]').forEach((button) => {
-    button.addEventListener('click', () => {
-      removeCartItem(Number(button.dataset.menuId));
-    });
-  });
+function generateOrderNumber() {
+  const datePart = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+  const count = state.orders.length + 1;
+  return `ORD-${datePart}-${String(count).padStart(4, '0')}`;
 }
 
 function handleOrderSubmit(event) {
   event.preventDefault();
 
   if (!state.cart.length) {
-    alert('장바구니에 메뉴를 먼저 담아주세요.');
+    alert('장바구니가 비어 있습니다. 메뉴를 선택해 주세요.');
     return;
   }
 
-  const name = document.getElementById('customerName').value.trim();
-  const phone = document.getElementById('customerPhone').value.trim();
-  const paymentMethod = document.getElementById('paymentMethod').value;
+  const formData = new FormData(els.orderForm);
+  const customerName = formData.get('customerName')?.toString().trim();
+  const phoneNumber = formData.get('customerPhone')?.toString().trim();
+  const paymentMethod = formData.get('paymentMethod')?.toString();
   const requestNote = document.getElementById('requestNote').value.trim();
 
-  if (!name || !phone) {
-    alert('이름과 연락처를 입력해주세요.');
+  if (!customerName || !phoneNumber) {
+    alert('이름과 연락처를 입력해 주세요.');
     return;
   }
 
-  const orderNumber = `B-${Date.now().toString().slice(-6)}`;
-  const totalPrice = state.cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-
-  const newOrder = {
+  const order = {
     id: Date.now(),
-    orderNumber,
-    customerName: name,
-    phoneNumber: phone,
-    paymentMethod,
-    requestNote: requestNote || '요청 사항 없음',
+    orderNumber: generateOrderNumber(),
+    customerName,
+    phoneNumber,
+    orderTime: new Date().toISOString(),
     status: 'waiting',
-    totalPrice,
-    createdAt: new Date().toISOString(),
-    items: state.cart.map((item) => ({
-      name: item.name,
-      quantity: item.quantity,
-      price: item.price,
-    })),
+    totalPrice: getCartTotal(),
+    requestNote,
+    paymentMethod,
+    items: state.cart.map(item => ({
+      ...item,
+      id: `${item.id}-${Date.now()}`
+    }))
   };
 
-  state.orders.unshift(newOrder);
+  state.orders.unshift(order);
   saveToStorage(STORAGE_KEYS.orders, state.orders);
-
   state.cart = [];
-  saveToStorage(STORAGE_KEYS.cart, state.cart);
-
-  document.getElementById('orderForm').reset();
+  els.orderForm.reset();
   renderCart();
-  renderDashboard();
-
-  alert(`${orderNumber} 주문이 접수되었습니다.`);
+  renderCustomerOrders();
+  renderAdminDashboard();
+  renderAdminOrders();
+  alert(`주문이 완료되었습니다. 주문번호: ${order.orderNumber}`);
 }
 
-function renderStats() {
-  const statsContainer = document.getElementById('statsCards');
-  const totalOrders = state.orders.length;
-  const todaySales = state.orders.reduce((sum, order) => sum + Number(order.totalPrice || 0), 0);
-  const waitingCount = state.orders.filter((order) => order.status === 'waiting').length;
-  const preparingCount = state.orders.filter((order) => order.status === 'preparing').length;
-  const completedCount = state.orders.filter((order) => order.status === 'completed').length;
+function renderCustomerOrders() {
+  const orders = state.orders.slice(0, 5);
 
-  const stats = [
-    { label: '총 주문 수', value: totalOrders },
-    { label: '오늘 매출', value: formatPrice(todaySales) },
-    { label: '대기 중', value: waitingCount },
-    { label: '제조 중', value: preparingCount },
-    { label: '완료', value: completedCount },
-  ];
+  if (!orders.length) {
+    els.customerOrderList.innerHTML = '<div class="empty-state">주문 내역이 없습니다.</div>';
+    return;
+  }
 
-  statsContainer.innerHTML = stats
+  els.customerOrderList.innerHTML = orders
     .map(
-      (stat) => `
-        <div class="stat-card">
-          <div class="label">${stat.label}</div>
-          <div class="value">${stat.value}</div>
+      order => `
+        <div class="order-card">
+          <div class="order-head">
+            <strong>${order.orderNumber}</strong>
+            <span class="status-badge ${getStatusClass(order.status)}">${getStatusLabel(order.status)}</span>
+          </div>
+          <div class="order-summary">${order.items.map(item => `${item.name} ${item.quantity}개`).join(', ')}</div>
+          <div class="order-summary">총 합계: ${formatPrice(order.totalPrice)}</div>
+          <div class="meta-muted">${new Date(order.orderTime).toLocaleString('ko-KR')}</div>
         </div>
-      `,
+      `
     )
     .join('');
 }
 
-function renderStatusFilters() {
-  const container = document.getElementById('statusFilter');
-  const statusKeys = ['all', ...Object.keys(STATUS_LABELS)];
+function getStatusClass(status) {
+  const mapping = {
+    waiting: 'status-waiting',
+    preparing: 'status-preparing',
+    completed: 'status-completed',
+    cancelled: 'status-cancelled'
+  };
 
-  container.innerHTML = statusKeys
-    .map(
-      (status) => `
-        <button
-          type="button"
-          class="filter-chip ${state.activeAdminFilter === status ? 'active' : ''}"
-          data-status="${status}"
-        >
-          ${status === 'all' ? '전체' : STATUS_LABELS[status]}
-        </button>
-      `,
-    )
-    .join('');
+  return mapping[status] || 'status-waiting';
+}
 
-  container.querySelectorAll('[data-status]').forEach((button) => {
-    button.addEventListener('click', () => {
-      state.activeAdminFilter = button.dataset.status;
-      renderStatusFilters();
-      renderAdminOrders();
-    });
-  });
+function getStatusLabel(status) {
+  const mapping = {
+    waiting: '주문 접수',
+    preparing: '준비 중',
+    completed: '완료',
+    cancelled: '취소'
+  };
+
+  return mapping[status] || '주문 접수';
+}
+
+function renderAdminDashboard() {
+  const waiting = state.orders.filter(order => order.status === 'waiting').length;
+  const preparing = state.orders.filter(order => order.status === 'preparing').length;
+  const completed = state.orders.filter(order => order.status === 'completed').length;
+  const cancelled = state.orders.filter(order => order.status === 'cancelled').length;
+  const totalSales = state.orders.reduce((sum, order) => sum + Number(order.totalPrice || 0), 0);
+  const avgOrder = state.orders.length ? Math.round(totalSales / state.orders.length) : 0;
+
+  document.getElementById('statWaiting').textContent = waiting;
+  document.getElementById('statPreparing').textContent = preparing;
+  document.getElementById('statCompleted').textContent = completed;
+  document.getElementById('statCancelled').textContent = cancelled;
+  document.getElementById('totalOrderCount').textContent = state.orders.length;
+  document.getElementById('totalSales').textContent = formatPrice(totalSales);
+  document.getElementById('avgOrderAmount').textContent = formatPrice(avgOrder);
 }
 
 function renderAdminOrders() {
-  const container = document.getElementById('adminOrders');
-
-  const filteredOrders = state.orders.filter((order) => {
-    return state.activeAdminFilter === 'all' || order.status === state.activeAdminFilter;
-  });
+  const filteredOrders =
+    state.adminFilter === 'all' ? state.orders : state.orders.filter(order => order.status === state.adminFilter);
 
   if (!filteredOrders.length) {
-    container.innerHTML = `<div class="empty-cart">표시할 주문이 없습니다.</div>`;
+    els.adminOrderList.innerHTML = '<div class="empty-state">해당 상태의 주문이 없습니다.</div>';
     return;
   }
 
-  container.innerHTML = filteredOrders
+  els.adminOrderList.innerHTML = filteredOrders
     .map(
-      (order) => `
-        <article class="order-card" data-order-id="${order.id}">
-          <div class="order-header">
-            <div>
-              <strong>${order.orderNumber}</strong>
-              <div>${order.customerName} · ${order.phoneNumber}</div>
-            </div>
-            <span class="order-badge" style="background:${STATUS_COLORS[order.status]}22; color:${STATUS_COLORS[order.status]};">
-              ${STATUS_LABELS[order.status]}
-            </span>
+      order => `
+        <div class="admin-order-card">
+          <div>
+            <strong>${order.orderNumber}</strong>
+            <div class="meta-muted">${order.customerName} / ${order.phoneNumber}</div>
+            <div class="meta-muted">${new Date(order.orderTime).toLocaleString('ko-KR')}</div>
+            <div class="meta-muted">${order.items.map(item => `${item.name}(${item.quantity})`).join(', ')}</div>
           </div>
-
-          <div class="order-body">
-            <div class="order-items">
-              ${order.items
+          <div>
+            <div class="meta-muted">결제</div>
+            <strong>${formatPrice(order.totalPrice)}</strong>
+            <div class="meta-muted">${order.requestNote || '요청 사항 없음'}</div>
+          </div>
+          <label>
+            <span class="meta-muted">상태 변경</span>
+            <select class="order-status-select" data-order-id="${order.id}">
+              ${['waiting', 'preparing', 'completed', 'cancelled']
                 .map(
-                  (item) => `
-                    <div class="order-item-line">
-                      <span>${item.name} x ${item.quantity}</span>
-                      <span>${formatPrice(item.price * item.quantity)}</span>
-                    </div>
-                  `,
+                  status => `
+                    <option value="${status}" ${status === order.status ? 'selected' : ''}>${getStatusLabel(status)}</option>
+                  `
                 )
                 .join('')}
-              <div class="order-item-line">
-                <span>요청사항</span>
-                <span>${order.requestNote}</span>
-              </div>
-            </div>
-
-            <div class="order-summary">
-              <div>결제: ${order.paymentMethod}</div>
-              <strong>${formatPrice(order.totalPrice)}</strong>
-              <div class="status-buttons">
-                ${Object.entries(STATUS_LABELS)
-                  .map(
-                    ([statusKey, statusLabel]) => `
-                      <button
-                        type="button"
-                        class="status-btn ${order.status === statusKey ? 'active' : ''}"
-                        data-order-id="${order.id}"
-                        data-status="${statusKey}"
-                      >
-                        ${statusLabel}
-                      </button>
-                    `,
-                  )
-                  .join('')}
-              </div>
-            </div>
-          </div>
-        </article>
-      `,
+            </select>
+          </label>
+        </div>
+      `
     )
     .join('');
-
-  container.querySelectorAll('.status-btn').forEach((button) => {
-    button.addEventListener('click', () => {
-      const orderId = Number(button.dataset.orderId);
-      const nextStatus = button.dataset.status;
-      updateOrderStatus(orderId, nextStatus);
-    });
-  });
 }
 
 function updateOrderStatus(orderId, nextStatus) {
-  const targetOrder = state.orders.find((order) => order.id === orderId);
+  const targetOrder = state.orders.find(order => order.id === Number(orderId));
   if (!targetOrder) return;
 
   targetOrder.status = nextStatus;
   saveToStorage(STORAGE_KEYS.orders, state.orders);
-  renderDashboard();
-}
-
-function renderDashboard() {
-  renderStats();
-  renderStatusFilters();
+  renderAdminDashboard();
   renderAdminOrders();
+  renderCustomerOrders();
 }
 
-function handleMenuSubmit(event) {
-  event.preventDefault();
+function attachEventListeners() {
+  document.querySelectorAll('.tab-button').forEach(button => {
+    button.addEventListener('click', () => {
+      const target = button.dataset.tab;
+      state.activeTab = target;
+      document.querySelectorAll('.tab-button').forEach(btn => btn.classList.toggle('active', btn === button));
+      els.customerView.classList.toggle('active', target === 'customer');
+      els.adminView.classList.toggle('active', target === 'admin');
+    });
+  });
 
-  const name = document.getElementById('newMenuName').value.trim();
-  const category = document.getElementById('newMenuCategory').value;
-  const description = document.getElementById('newMenuDescription').value.trim();
-  const price = Number(document.getElementById('newMenuPrice').value);
-
-  if (!name || !description || Number.isNaN(price) || price <= 0) {
-    alert('메뉴 정보를 올바르게 입력해주세요.');
-    return;
-  }
-
-  const newMenu = {
-    id: Date.now(),
-    name,
-    category,
-    description,
-    price,
-    emoji: getEmojiByCategory(category),
-  };
-
-  state.menuItems.push(newMenu);
-  saveToStorage(STORAGE_KEYS.menu, state.menuItems);
-
-  event.target.reset();
-  renderMenu();
-  renderCategoryFilters();
-  alert('메뉴가 추가되었습니다.');
-}
-
-function getEmojiByCategory(category) {
-  const emojiMap = {
-    coffee: '☕',
-    noncoffee: '🍹',
-    dessert: '🍰',
-    tea: '🫖',
-  };
-
-  return emojiMap[category] || '☕';
-}
-
-function bindEvents() {
-  document.getElementById('searchInput').addEventListener('input', (event) => {
-    state.searchQuery = event.target.value;
+  els.searchInput.addEventListener('input', event => {
+    state.query = event.target.value;
     renderMenu();
   });
 
-  document.getElementById('clearCartBtn').addEventListener('click', () => {
-    state.cart = [];
-    saveToStorage(STORAGE_KEYS.cart, state.cart);
-    renderCart();
+  els.categoryTabs.addEventListener('click', event => {
+    const button = event.target.closest('[data-category]');
+    if (!button) return;
+    state.category = button.dataset.category;
+    renderCategories();
+    renderMenu();
   });
 
-  document.getElementById('orderForm').addEventListener('submit', handleOrderSubmit);
-  document.getElementById('menuForm').addEventListener('submit', handleMenuSubmit);
+  els.menuGrid.addEventListener('click', event => {
+    const card = event.target.closest('[data-menu-id]');
+    if (!card) return;
+    openMenuModal(card.dataset.menuId);
+  });
 
-  document.querySelectorAll('.nav-btn').forEach((button) => {
-    button.addEventListener('click', () => {
-      const view = button.dataset.view;
-      document.querySelectorAll('.nav-btn').forEach((nav) => nav.classList.toggle('active', nav === button));
-      document.getElementById('customerView').classList.toggle('active', view === 'customer');
-      document.getElementById('adminView').classList.toggle('active', view === 'admin');
-    });
+  els.cartList.addEventListener('click', event => {
+    const quantityButton = event.target.closest('[data-change-qty]');
+    const removeButton = event.target.closest('[data-remove-id]');
+
+    if (quantityButton) {
+      const delta = quantityButton.dataset.changeQty === '+' ? 1 : -1;
+      adjustCartQuantity(quantityButton.dataset.id, delta);
+      return;
+    }
+
+    if (removeButton) {
+      removeCartItem(removeButton.dataset.removeId);
+    }
+  });
+
+  els.clearCartBtn.addEventListener('click', clearCart);
+
+  els.orderForm.addEventListener('submit', handleOrderSubmit);
+
+  els.adminFilter.addEventListener('change', event => {
+    state.adminFilter = event.target.value;
+    renderAdminOrders();
+  });
+
+  document.getElementById('closeModalBtn').addEventListener('click', closeMenuModal);
+  els.menuModal.addEventListener('click', event => {
+    if (event.target === els.menuModal) closeMenuModal();
+  });
+
+  document.addEventListener('click', event => {
+    const addButton = event.target.closest('#addToCartBtn');
+    if (addButton) {
+      addToCartFromModal();
+    }
+  });
+
+  document.addEventListener('change', event => {
+    const select = event.target.closest('.order-status-select');
+    if (select) {
+      updateOrderStatus(select.dataset.orderId, select.value);
+    }
   });
 }
 
 function initialize() {
-  bindEvents();
-  renderCategoryFilters();
+  if (!localStorage.getItem(STORAGE_KEYS.orders)) {
+    saveToStorage(STORAGE_KEYS.orders, initialOrders);
+    state.orders = initialOrders;
+  }
+
+  renderCategories();
   renderMenu();
   renderCart();
-  renderDashboard();
+  renderCustomerOrders();
+  renderAdminDashboard();
+  renderAdminOrders();
+  attachEventListeners();
 }
 
 initialize();
